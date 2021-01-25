@@ -31,16 +31,6 @@ zinit ice depth=1; zinit light romkatv/powerlevel10k
 
 #<-- naf - base-plugins -
 
-#--> naf - marlonrichert/zsh-autocomplete -
-zstyle ':autocomplete:list-choices:*' max-lines 90%
-zstyle ':autocomplete:*' groups always
-zstyle ':autocomplete:tab:*' completion cycle
-zstyle ':autocomplete:*' magic off
-zstyle ':autocomplete:*' fuzzy-search off
-zstyle ':autocomplete:*' key-binding off
-# zstyle ':autocomplete:*' config off
-#<-- naf - marlonrichert/zsh-autocomplete -
-
 #--> naf - base-completion -
 # zdharma/fast-syntax-highlighting:   seems slow
 # zsh-users/zsh-autosuggestions:      based on history and completions
@@ -60,8 +50,15 @@ zstyle ':autocomplete:*' key-binding off
 #zinit load zsh-users/zsh-autosuggestions
 #zinit load zsh-users/zsh-completions
 
+# marlonrichert/zsh-autocomplete - config
+zstyle ':autocomplete:list-choices:*' max-lines 90%
+zstyle ':autocomplete:*' groups always
+zstyle ':autocomplete:tab:*' completion cycle
+zstyle ':autocomplete:*' magic off
+zstyle ':autocomplete:*' fuzzy-search off
+zstyle ':autocomplete:*' key-binding off
+# zstyle ':autocomplete:*' config off
 zinit lucid \
-  atinit"source ${ZINIT[PLUGINS_DIR]}/zsh-autocomplete_atinit.zsh" \
   light-mode for @marlonrichert/zsh-autocomplete
 
 autoload bashcompinit         # Load bashcompinit for some old bash completions
