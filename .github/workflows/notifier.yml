@@ -1,0 +1,59 @@
+name: "Notifier"
+
+
+on:
+  repository_dispatch:
+    types: [slack-notification]
+
+
+jobs:
+  slack_notification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.client_payload.ref }}
+      - name: "Send Slack Standard Notification"
+        uses: rtCamp/action-slack-notify@v2
+        if: github.event.client_payload.type == 'build'
+        env:
+          SLACK_ICON: "https://www.dropbox.com/s/r792vr1309bl19b/octocat.png?raw=1"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_USERNAME: ${{ secrets.SLACK_USERNAME }}
+          SLACK_COLOR: ${{ github.event.client_payload.color }}
+          SLACK_TITLE: ${{ github.event.client_payload.title }}
+          SLACK_MESSAGE: ${{ github.event.client_payload.message }}
+      - name: "Send Slack Security Notification"
+        uses: rtCamp/action-slack-notify@v2
+        if: github.event.client_payload.type == 'security'
+        env:
+          SLACK_ICON: "https://www.dropbox.com/s/gxl853y3tj5bp0y/security.png?raw=1"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_SECURITY_WEBHOOK }}
+          SLACK_USERNAME: ${{ secrets.SLACK_USERNAME }}
+          SLACK_COLOR: ${{ github.event.client_payload.color }}
+          SLACK_TITLE: ${{ github.event.client_payload.title }}
+          SLACK_MESSAGE: ${{ github.event.client_payload.message }}
+      - name: "Send Slack Resilience Notification"
+        uses: rtCamp/action-slack-notify@v2
+        if: github.event.client_payload.type == 'resilience'
+        env:
+          SLACK_ICON: "https://www.dropbox.com/s/pkp0mgnyw5kdgim/disaster-recovery.png?raw=1"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_SECURITY_WEBHOOK }}
+          SLACK_USERNAME: ${{ secrets.SLACK_USERNAME }}
+          SLACK_COLOR: ${{ github.event.client_payload.color }}
+          SLACK_TITLE: ${{ github.event.client_payload.title }}
+          SLACK_MESSAGE: ${{ github.event.client_payload.message }}
+
+  # sms_notification:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: "Send SMS"
+  #       uses: rafaelvicio/sns-sms@1.0.1
+  #       if: github.event.client_payload.type == 'build'
+  #       with:
+  #         FROM_PHONE_NUMBER: "+5561123456789"
+  #         SMS_TEXT_CONTENT: ${{ github.event.client_payload.message }}
+  #       env:
+  #         AWS_REGION: ${{ secrets.AWS_REGION }}
+  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

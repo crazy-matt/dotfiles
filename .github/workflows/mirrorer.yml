@@ -25,3 +25,10 @@ jobs:
         with:
           target_repo_url: git@gitlab.com:${{ github.repository }}.git
           ssh_private_key: ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}
+      - name: "Create Repository Dispatch event for Security Analysis result"
+        if: failure()
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+          event-type: slack-notification
+          client-payload: '{"type": "resilience", "ref": "${{ github.ref }}", "color": "#FF0000", "title": "${{ github.repository }} Mirroring", "message": "🚨 Failure"}'
