@@ -32,24 +32,6 @@ zinit ice depth=1; zinit light romkatv/powerlevel10k
 #<-- naf - base-plugins -
 
 #--> naf - base-completion -
-# zdharma/fast-syntax-highlighting:   seems slow
-# zsh-users/zsh-autosuggestions:      based on history and completions
-# marlonrichert/zsh-autocomplete:     real-time type-ahead autocompletion (not sure it will behave well with the rest)
-
-# removed as zinit will run it via atinit'' below
-#autoload -Uz compinit
-#compinit -d "${ZINIT[ZCOMPDUMP_PATH]}"
-#zinit cdreplay -q             # -q is for quiet; actually run all the `compdef's saved before
-#                              # `compinit` call (`compinit' declares the `compdef' function, so
-#                              # it cannot be used until `compinit' is ran; Zinit solves this
-#                              # via intercepting the `compdef'-calls and storing them for later
-#                              # use with `zinit cdreplay')
-
-# removed as turbomode being implemented below
-#zinit load zdharma/fast-syntax-highlighting
-#zinit load zsh-users/zsh-autosuggestions
-#zinit load zsh-users/zsh-completions
-
 # marlonrichert/zsh-autocomplete - config
 zstyle ':autocomplete:list-choices:*' max-lines 90%
 zstyle ':autocomplete:*' groups always
@@ -57,21 +39,20 @@ zstyle ':autocomplete:tab:*' completion cycle
 zstyle ':autocomplete:*' magic off
 zstyle ':autocomplete:*' fuzzy-search off
 zstyle ':autocomplete:*' key-binding off
-# zstyle ':autocomplete:*' config off
+#zstyle ':autocomplete:*' config off
 zinit lucid \
   light-mode for @marlonrichert/zsh-autocomplete
 
 autoload bashcompinit         # Load bashcompinit for some old bash completions
 bashcompinit
-# example of bash completion loading: [[ -r ~/Projects/autopkg_complete/autopkg ]] && source ~/Projects/autopkg_complete/autopkg
 
-zinit wait lucid for \
+zinit wait lucid light-mode for \
   atinit"zicompinit; zicdreplay" \
     zdharma/fast-syntax-highlighting \
-  atload"!_zsh_autosuggest_start" \
-    zsh-users/zsh-autosuggestions
+  atload"_zsh_autosuggest_start" \
+    zsh-users/zsh-autosuggestions \
   blockf atpull'zinit creinstall -q .' \
-    zsh-users/zsh-completions \
+    zsh-users/zsh-completions
 
 #zinit cdlist                 # look at gathered compdefs
 #<-- naf - base-completion -

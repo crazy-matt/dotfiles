@@ -57,7 +57,11 @@ zstyle ':autocomplete:tab:*' completion cycle
 zstyle ':autocomplete:*' magic off
 zstyle ':autocomplete:*' fuzzy-search off
 zstyle ':autocomplete:*' key-binding off
-# zstyle ':autocomplete:*' config off
+#zstyle ':autocomplete:tab:*' insert-unambiguous yes
+#zstyle ':autocomplete:tab:*' widget-style menu-select
+#zstyle ':autocomplete:tab:*' widget-style menu-complete
+#zstyle ':autocomplete:tab:*' fzf-completion no
+#zstyle ':autocomplete:*' config off
 zinit lucid \
   light-mode for @marlonrichert/zsh-autocomplete
 
@@ -65,13 +69,13 @@ autoload bashcompinit         # Load bashcompinit for some old bash completions
 bashcompinit
 # example of bash completion loading: [[ -r ~/Projects/autopkg_complete/autopkg ]] && source ~/Projects/autopkg_complete/autopkg
 
-zinit wait lucid for \
+zinit wait lucid light-mode for \
   atinit"zicompinit; zicdreplay" \
     zdharma/fast-syntax-highlighting \
-  atload"!_zsh_autosuggest_start" \
-    zsh-users/zsh-autosuggestions
+  atload"_zsh_autosuggest_start" \
+    zsh-users/zsh-autosuggestions \
   blockf atpull'zinit creinstall -q .' \
-    zsh-users/zsh-completions \
+    zsh-users/zsh-completions
 
 #zinit cdlist                 # look at gathered compdefs
 #<-- naf - base-completion -
