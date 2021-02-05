@@ -23,12 +23,23 @@ zi_program() {
 }
 #<-- naf - common-ice-modifiers -
 
+#--> naf - rc-functions -
+# the following will run after everything else happens
+finish_setup() {
+  command -v pip >/dev/null && . <(pip completion --zsh)
+  # load system completions
+  if [ -f /usr/share/zsh/site-functions/_systemctl ]; then
+    zi_completion is-snippet for \
+      /usr/share/zsh/site-functions/_*ctl
+  fi
+}
+#<-- naf - rc-functions -
+
 #--> naf - theme-loading -
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 #<-- naf - theme-loading -
 
 #--> naf - base-plugins -
-
 #<-- naf - base-plugins -
 
 #--> naf - base-completion -
@@ -46,8 +57,8 @@ zinit lucid \
 autoload bashcompinit         # Load bashcompinit for some old bash completions
 bashcompinit
 
-zinit wait lucid light-mode for \
-  atinit"zicompinit; zicdreplay" \
+zi0c light-mode for \
+  atinit"zicompinit; zicdreplay; finish_setup" \
     zdharma/fast-syntax-highlighting \
   atload"_zsh_autosuggest_start" \
     zsh-users/zsh-autosuggestions \

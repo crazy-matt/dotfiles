@@ -1,0 +1,6 @@
+# location: ~/.config/yakuakerc
+
+[AutoOpen]
+PollMouse=true
+#PollInterval=500
+PollInterval=2000
