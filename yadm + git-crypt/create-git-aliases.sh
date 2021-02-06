@@ -4,3 +4,4 @@ git config --global alias.cipher '!f() { zsh -c ". ${ZDOTDIR:-$HOME}/.zaliases; 
 git config --global alias.decipher '!f() { zsh -c ". ${ZDOTDIR:-$HOME}/.zaliases; yadm_decipher \"$1\" "; }; f'
 git config --global alias.ls '!f() { zsh -c ". ${ZDOTDIR:-$HOME}/.zaliases; yadm_ls \"$1\" "; }; f'
 git config --global alias.unlock '!f() { zsh -c ". ${ZDOTDIR:-$HOME}/.zaliases; yadm_unlock \"$1\" "; }; f'
+git config --global alias.open '!f() { open "$(yadm remote get-url origin)"; }; f'

@@ -168,6 +168,7 @@ function helper_yadm_functions() {
   log info "yadm add -u: stage to git all modified files at once"
   log info "yadm restore: map the git-restore command"
   log info "yadm unlock"
+  log info "yadm open"
   echo
   log info "yadm_init"
   log info "yadm_setup"
@@ -191,7 +192,7 @@ yadm_cipher() {
     if [[ "$(helper_string_contains "${_content}" "!")" == true ]]; then
       log warning "If you exclude from the encryption box, you maybe want to 'yadm add' this content to stage it as clear text"
     else
-      yadm add ${_content}
+      yadm add ~/${_content}
     fi
     echo; log title "After:"; cat ~/.gitattributes
     yadm add ~/.gitattributes
@@ -205,19 +206,38 @@ yadm_decipher() {
   [[ " -h --help " == *" $1 "* ]] && helper "Remove content from git-crypt encryption box on behalf of yadm" \
     "content - path provided must be relative to the HOME folder (supports 'Downloads/*', '!Downloads/logs', '!**.log' notations)" \
   && return
-  local _content="${1?Arg content missing. What do you wanna unsecure?}"
+  local _content="${1?Arg content missing. What do you wanna cipher?}"
+  if [[ "${_content}" == !* ]]; then
+    log alert "Negative (!) patterns are forbidden in git attributes. Please double-check or edit your .gitattributes manually with 'yadm ls -e'."
+    return
+  fi
+  if [[ "$(helper_string_contains "${_content}" "$HOME")" == true ]]; then
+    _content="${_content#$HOME/}"
+  fi
+  if [[ "$(helper_string_contains "${_content}" "~")" == true ]]; then
+    _content="${_content#"~/"}"
+  fi
+  local _git_file="$HOME/.gitattributes"
+  local _check="${_content} filter"
+  local _content_to_remove="${_content} filter=git-crypt diff=git-crypt"
 
-  if [[ -n "$(grep -F "${_content} filter" ~/.gitattributes)" ]]; then
-    log title "Before:"; cat ~/.gitattributes; echo
-    chmod 644 ~/.gitattributes
-    sed -i -e "s:^${_content} filter.*::" ~/.gitattributes
-    sed -i -e '/^$/d' ~/.gitattributes # remove blank lines
-    chmod 444 ~/.gitattributes
-    if [[ "$(helper_string_contains "${_content}" "!")" == false ]]; then
-      yadm rm --cache ${_content}
+  if [[ -n "$(grep -F "${_check}" "${_git_file}")" ]]; then
+    local _content_for_git="${${_content%"/**"}%"/*"}"
+    local _content_for_sed="$(printf %q "${_content} filter")" # Preprocessing by backslashing all sed meta-characters
+    log title "Before:"; cat "${_git_file}"; echo
+    chmod 644 "${_git_file}"
+    sed -i -e "s:^${_content_for_sed}.*::" "${_git_file}"
+    sed -i -e '/^$/d' "${_git_file}" # remove blank lines
+    chmod 444 "${_git_file}"
+    if [[ "$(helper_string_contains "${_content}" "/\*")" == true ]]; then
+      echo yadm rm --cache -r ${_content_for_git}
+      yadm rm --cache -r "${_content_for_git}"
+    else
+      echo yadm rm --cache ${_content_for_git}
+      yadm rm --cache "${_content_for_git}"
     fi
-    echo; log title "After:"; cat ~/.gitattributes
-    yadm add ~/.gitattributes
+    echo; log title "After:"; cat "${_git_file}"
+    yadm add "${_git_file}"
     echo; log title "Don't forget to commit" && echo -e "$(yadm status)" | grep -v '^Untracked files not listed.*'
   fi
 }
@@ -241,6 +261,10 @@ yadm_ls() {
     *)
       log title "Registered for encryption:"
       cat ~/.gitattributes
+      if [[ -f "$HOME/.gitignore" ]]; then
+        log title "Content ignored:"
+        cat ~/.gitignore
+      fi
     ;;
   esac
   

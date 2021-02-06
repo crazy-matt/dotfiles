@@ -15,11 +15,10 @@ echo "Explore!"
 # Use case
 #
 # yadm_init "dotfiles"
-# yadm unlock
+# yadm cipher "!.ssh/known_hosts"   # => you want to prevent the encryption and commit of this file
 # yadm cipher ".ssh/*"
-# yadm cipher "!.ssh/known_hosts" # you want to prevent the encryption and commit of this file
 # yadm add ".zshrc"
 # yadm commit -m "test"
 # yadm push
-# open "https://github.com/$GITHUB_USER/dotfiles"
-# yadm ls -e   # if you need to edit manually your encryption "registry"
+# yadm open   # => You'll see what is encrypted on the remote
+# yadm ls -e   # => if you need to edit manually your encryption "registry"
