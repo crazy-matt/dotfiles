@@ -196,7 +196,7 @@ yadm_cipher() {
     fi
     echo; log title "After:"; cat ~/.gitattributes
     yadm add ~/.gitattributes
-    echo; log title "Don't forget to commit" && echo -e "$(yadm status)" | grep -v '^Untracked files not listed.*'
+    echo; log title "Don't forget to commit" && yadm status
   fi
 }
 
@@ -238,7 +238,7 @@ yadm_decipher() {
     fi
     echo; log title "After:"; cat "${_git_file}"
     yadm add "${_git_file}"
-    echo; log title "Don't forget to commit" && echo -e "$(yadm status)" | grep -v '^Untracked files not listed.*'
+    echo; log title "Don't forget to commit" && yadm status
   fi
 }
 
