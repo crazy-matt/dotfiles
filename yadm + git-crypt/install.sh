@@ -15,7 +15,7 @@ echo "Explore!"
 # Use case
 #
 # yadm_init "dotfiles"
-# yadm cipher "!.ssh/known_hosts"   # => you want to prevent the encryption and commit of this file
+# yadm cipher '!.ssh/known_hosts'   # => you want to prevent the encryption and commit of this file
 # yadm cipher ".ssh/*"
 # yadm add ".zshrc"
 # yadm commit -m "test"
