@@ -1,0 +1,80 @@
+name: "Static Analyser"
+
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+
+defaults:
+  run:
+    shell: bash
+
+
+jobs:
+  # Ref: https://github.com/github/super-linter
+  linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
+      - name: Find-out the default branch
+        id: get_default_branch
+        run: |
+          head="$(git branch -a | grep 'remotes/origin/')"
+          default_branch="${head#*"remotes/origin/"}"
+          echo "::set-output name=default_branch::${default_branch}"
+      - name: Lint Code Base
+        uses: github/super-linter@v3.14.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: ${{ steps.get_default_branch.outputs.default_branch }}
+          # When set to false, only new or edited files will be parsed for validation
+          VALIDATE_ALL_CODEBASE: true
+          OUTPUT_DETAILS: simpler
+          MULTI_STATUS: true
+          DISABLE_ERRORS: false
+          #FILTER_REGEX_EXCLUDE=
+          LINTER_RULES_PATH: .github/linters
+          VALIDATE_BASH: true                         # see https://github.com/koalaman/shellcheck
+          VALIDATE_DOCKERFILE_HADOLINT: true
+          DOCKERFILE_HADOLINT_FILE_NAME: .hadolint.yml
+          VALIDATE_MARKDOWN: true
+          MARKDOWN_CONFIG_FILE: .markdown-lint.yml
+          VALIDATE_EDITORCONFIG: true
+          EDITORCONFIG_FILE_NAME: .ecrc
+          VALIDATE_YAML: true
+          YAML_CONFIG_FILE: .yaml-lint.yml
+      - name: "Create Repository Dispatch event for Linting result"
+        if: failure()
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+          event-type: slack-notification
+          client-payload: '{"type": "build", "ref": "${{ github.ref }}", "color": "#FF0000", "title": "${{ github.repository }} Linting", "message": "⚠️ Failed"}'
+
+  # Ref: Relies on your root .gitleaks.toml config. See https://github.com/zricethezav/gitleaks-action
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Using a fetch-depth of '0' clones the entire history. If you want to do a more efficient clone, use '2', but that is not guaranteed to work with pull requests
+          fetch-depth: 0
+      - name: "Run GitLeaks scan"
+        #uses: zricethezav/gitleaks-action@v1.2.0
+        uses: crazy-matt/gitleaks-action@master
+        with:
+          config-path: security/.gitleaks.toml
+      - name: "Create Repository Dispatch event for Security Analysis result"
+        if: failure()
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+          event-type: slack-notification
+          client-payload: '{"type": "security", "ref": "${{ github.ref }}", "color": "#FF0000", "title": "${{ github.repository }} Leak Analysis", "message": "🚨 Secret(s) exposed"}'
