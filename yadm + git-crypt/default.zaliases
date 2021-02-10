@@ -113,6 +113,19 @@ function log() {
 }
 
 
+function helper_string_contains() {
+  [[ " -h --help " == *" $1 "* ]] && helper "Check if a string contains a substring or regex. Return true if the string contains the substring/regex, false otherwise"
+  local _my_string="$1"
+  local _my_substring="$2"
+
+  if [[ "${_my_string}" =~ "${_my_substring}" ]]; then
+    echo true
+  else
+    echo false
+  fi
+}
+
+
 function git_create_remote_repo() {
   [[ " -h --help " == *" $1 "* ]] && helper "Create a GitHub remote by calling the GitHub API" \
     "Repo fullname (shortname if you want a user repo)" \
@@ -172,30 +185,69 @@ function helper_yadm_functions() {
   echo
   log info "yadm_init"
   log info "yadm_setup"
-  log info "yadm_reset"
+  log info "yadm_destroy"
 }
 
 
 # Called from a git alias with: yadm cipher
 yadm_cipher() {
   [[ " -h --help " == *" $1 "* ]] && helper "Add content to git-crypt encryption box on behalf of yadm" \
-    "content - path provided must be relative to the HOME folder (supports 'Downloads/*', '!Downloads/logs', '!**.log' notations)" \
+    "content - path provided must be relative to the HOME folder (supports 'Downloads/*', 'Downloads/**' '**.log' notations)" \
   && return
-  local _content="${1?Arg content missing. What do you wanna secure?}"
+  local _content="${1?Arg content missing. What do you wanna cipher?}"
+  if [[ "${_content}" == ".gitconfig" || "${_content}" == ".zaliases" ]]; then
+    log alert "Trust me you don't wanna do this... If you encrypt your .gitconfig or yadm wrapping functions, how do you restore moron??"
+    return
+  fi
+  if [[ "$(helper_string_contains "${_content}" "$HOME")" == true ]]; then
+    _content="${_content#$HOME/}"
+  fi
+  if [[ "$(helper_string_contains "${_content}" "~")" == true ]]; then
+    _content="${_content#"~/"}"
+  fi
+  local _git_file="$HOME/.gitattributes"
+  local _check="${_content} filter"
+  local _content_to_insert="${_content} filter=git-crypt diff=git-crypt"
+  local _answer="n"
 
-  if [[ -z "$(grep -F "${_content} filter" ~/.gitattributes)" ]]; then
-    log title "Before:"; cat ~/.gitattributes; echo
-    chmod 644 ~/.gitattributes; sleep 1
-    echo -e "${_content} filter=git-crypt diff=git-crypt" >> ~/.gitattributes
-    sed -i -e '/^$/d' ~/.gitattributes # remove blank lines
-    chmod 444 ~/.gitattributes
-    if [[ "$(helper_string_contains "${_content}" "!")" == true ]]; then
-      log warning "If you exclude from the encryption box, you maybe want to 'yadm add' this content to stage it as clear text"
+  if [[ "${_content}" == !* ]]; then
+    log question "Negative (!) patterns are forbidden in git attributes. Do you want to fully exclude this content from yadm git repo (a .gitignore will be created)? [y/N] "
+    helper_read _answer;
+    if [[ "${_answer}" == "y" ]]; then
+      _git_file="$HOME/.gitignore"
+      if [[ ! -f "${_git_file}" ]]; then
+        echo -e "# Yadm Management\n" > "${_git_file}"
+      fi
+      _check="${_content#"!"}"
+      _content_to_insert="${_content#"!"}"
+
+      if [[ "${_content}" == *'/*' && -n "$(grep -F "${_check}*" "${_git_file}")" ]]; then
+        log alert "No need to add this pattern as your already have a '/**' equivalent"
+        return
+      fi
     else
-      yadm add ~/${_content}
+      return
     fi
-    echo; log title "After:"; cat ~/.gitattributes
-    yadm add ~/.gitattributes
+  else
+    if [[ "${_content}" == *'/*' && -n "$(grep -F "${_content}* filter" "${_git_file}")" ]]; then
+      log alert "No need to add this pattern as your already have a '/**' equivalent"
+      return
+    fi
+  fi
+
+  if [[ -z "$(grep -F "${_check}" "${_git_file}")" ]]; then
+    local _content_for_git="${${_content%"/**"}%"/*"}"
+    log title "Before:"; cat "${_git_file}"; echo
+    chmod 644 "${_git_file}"
+    echo -e "${_content_to_insert}" >> "${_git_file}"
+    sed -i -e '/^$/d' "${_git_file}" # remove blank lines
+    chmod 444 "${_git_file}"
+    if [[ "${_git_file}" == "$HOME/.gitattributes" ]]; then
+      echo yadm add ${_content_for_git}
+      yadm add "${_content_for_git}"
+    fi
+    echo; log title "After:"; cat "${_git_file}"
+    yadm add "${_git_file}"
     echo; log title "Don't forget to commit" && yadm status
   fi
 }
@@ -277,8 +329,10 @@ yadm_ls() {
 yadm_unlock() {
   [[ " -h --help " == *" $1 "* ]] && helper "Unlock, after recent cloning, a yadm git-crypt based on the symmetric key initially stored in your password manager" \
   && return
-  if [[ -n "$(command which xxd)" ]]; then
-    yadm git-crypt unlock <(printf "$(lpass show --sync=now --field=Token 'IT/yadm key')" | xxd -p -r)
+
+  if [[ -n "$(which -d xxd)" ]]; then
+    local _pwd="$(lpass show --sync=now --field=Token 'IT/yadm key')"
+    yadm git-crypt unlock <(printf "${_pwd}" | xxd -p -r)
   else
     log error "You need to instal xxd and maybe lpass"
   fi
@@ -291,6 +345,8 @@ function yadm_init() {
     "repo fullname (shortname if you want a user repo)" \
   && return
   
+  [[ -z "${GITHUB_USER}" ]] && log error "You need to create a \$GITHUB_USER."
+
   local _repo_name="${1?Repo fullname missing}"
   local _default_branch="${2:-main}" # being opinionated on this, no need to expose it, use main
 
@@ -310,16 +366,10 @@ function yadm_init() {
 
   yadm init -b "${_default_branch}"
   
-  #mkdir -p ~/.config/yadm; touch ~/.config/yadm/encrypt
-  #yadm add ~/.config/yadm/encrypt
-  #mkdir -p ~/.local/share/yadm; touch ~/.local/share/yadm/archive
-  #yadm add ~/.local/share/yadm/archive
-  # ^^ The above is not needed anymore as I now use git-crypt
   echo -e "# NEVER REMOVE THIS LINE BELOW\n.gitattributes !filter !diff" >> ~/.gitattributes; yadm add ~/.gitattributes # replace the yadm encryption mechanism by the git-crypt's one which does it transparently
   
-  [[ -z "${GITHUB_USER}" ]] && log error "Read the code, you need a \$GITHUB_USER and you'll be requested a password which can be your Personal Access Token. More convenient when you have nothing yet on your laptop."
   yadm commit -m "Initial commit"
-  yadm remote add origin https://${GITHUB_USER}@github.com/${_fullname}.git
+  yadm remote add origin origin git@github.com:${_fullname}.git
   yadm remote -v # just to check everything looks good
   yadm push -u origin "${_default_branch}"
   yadm git-crypt init
@@ -334,8 +384,11 @@ function yadm_init() {
 function yadm_setup() {
   [[ " -h --help " == *" $1 "* ]] && helper "Restore a yadm config, pulling from an existing repo" \
     "repo fullname (shortname if you want a user repo)" \
+    "branch" \
   && return
   
+  [[ -z "${GITHUB_USER}" ]] && log error "You need to create a \$GITHUB_USER and you'll be requested a password which can be your Personal Access Token."
+
   local _repo_name="${1?Repo fullname missing}"
   local _default_branch="${2:-main}"
 
@@ -356,8 +409,16 @@ function yadm_setup() {
 }
 
 
+# Not exposed via a git alias
+function yadm_show_conflicts() {
+  [[ " -h --help " == *" $1 "* ]] && helper "After a recent cloning, use this function if you have a conflict." \
+  && return
+  yadm stash show -p
+}
+
+
 # Not exposed via a git alias, it's up to you, I feel it risky as you could trigger it with a git <your alias> and mess around with your yadm config
-function yadm_reset() {
+function yadm_destroy() {
   [[ " -h --help " == *" $1 "* ]] && helper "Delete all your yadm local configuration, letting any existing remote safe" && return
   command rm -rf ~/.local/share/yadm ~/.config/yadm
   command rm -f ~/.gitattributes

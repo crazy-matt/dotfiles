@@ -12,6 +12,11 @@ antigen theme romkatv/powerlevel10k
 antigen bundle zdharma/fast-syntax-highlighting
 #<-- naf - base-plugins -
 
+#--> naf - bash-completion -
+autoload bashcompinit         # Load bashcompinit for some old bash completions
+bashcompinit
+#<-- naf - bash-completion -
+
 #--> naf - base-completion -
 antigen bundle zsh-users/zsh-autosuggestions
 antigen bundle zsh-users/zsh-completions
