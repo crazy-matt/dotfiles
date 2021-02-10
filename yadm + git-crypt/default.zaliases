@@ -175,8 +175,8 @@ function git_create_remote_repo() {
 
 # Only there to summarize
 function helper_yadm_functions() {
-  log info "yadm cipher: add new content to be encrypted (supports 'Downloads/*', '!Downloads/logs', '!**.log')"
-  log info "yadm decipher: remove content from the git-crypt encryption box (supports 'Downloads/*', '!Downloads/logs', '!**.log')"
+  log info "yadm cipher: add new content to be encrypted (supports 'Downloads/*', 'Downloads/**', '!log1.log', '!**.log' notations)"
+  log info "yadm decipher: remove content from the git-crypt encryption box"
   log info "yadm ls --help"
   log info "yadm add -u: stage to git all modified files at once"
   log info "yadm restore: map the git-restore command"
@@ -192,7 +192,7 @@ function helper_yadm_functions() {
 # Called from a git alias with: yadm cipher
 yadm_cipher() {
   [[ " -h --help " == *" $1 "* ]] && helper "Add content to git-crypt encryption box on behalf of yadm" \
-    "content - path provided must be relative to the HOME folder (supports 'Downloads/*', 'Downloads/**' '**.log' notations)" \
+    "content - path provided must be relative to the HOME folder (supports 'Downloads/*', 'Downloads/**', '!log1.log', '!**.log' notations)" \
   && return
   local _content="${1?Arg content missing. What do you wanna cipher?}"
   if [[ "${_content}" == ".gitconfig" || "${_content}" == ".zaliases" ]]; then
@@ -256,7 +256,7 @@ yadm_cipher() {
 # Called from a git alias with: yadm decipher
 yadm_decipher() {
   [[ " -h --help " == *" $1 "* ]] && helper "Remove content from git-crypt encryption box on behalf of yadm" \
-    "content - path provided must be relative to the HOME folder (supports 'Downloads/*', '!Downloads/logs', '!**.log' notations)" \
+    "content - path provided must be relative to the HOME folder" \
   && return
   local _content="${1?Arg content missing. What do you wanna cipher?}"
   if [[ "${_content}" == !* ]]; then
