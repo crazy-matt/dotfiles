@@ -271,7 +271,6 @@ yadm_decipher() {
   fi
   local _git_file="$HOME/.gitattributes"
   local _check="${_content} filter"
-  local _content_to_remove="${_content} filter=git-crypt diff=git-crypt"
 
   if [[ -n "$(grep -F "${_check}" "${_git_file}")" ]]; then
     local _content_for_git="${${_content%"/**"}%"/*"}"
@@ -282,11 +281,11 @@ yadm_decipher() {
     sed -i -e '/^$/d' "${_git_file}" # remove blank lines
     chmod 444 "${_git_file}"
     if [[ "$(helper_string_contains "${_content}" "/\*")" == true ]]; then
-      echo yadm rm --cache -r ${_content_for_git}
-      yadm rm --cache -r "${_content_for_git}"
+      echo yadm rm --cached -r ${_content_for_git}
+      yadm rm --cached -r "${_content_for_git}"
     else
-      echo yadm rm --cache ${_content_for_git}
-      yadm rm --cache "${_content_for_git}"
+      echo yadm rm --cached ${_content_for_git}
+      yadm rm --cached "${_content_for_git}"
     fi
     echo; log title "After:"; cat "${_git_file}"
     yadm add "${_git_file}"
