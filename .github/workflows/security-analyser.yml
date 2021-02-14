@@ -27,7 +27,7 @@ jobs:
         uses: zricethezav/gitleaks-action@v1.3.0
         #uses: crazy-matt/gitleaks-action@master
         with:
-          config-path: security/.gitleaks.toml
+          config-path: .security/gitleaks.toml
       - name: "Create Repository Dispatch event for Security Analysis result"
         if: failure()
         uses: peter-evans/repository-dispatch@v1
