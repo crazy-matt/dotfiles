@@ -1,5 +1,5 @@
-# ˅˅ this could be useful one day 
-case "$(uname -s)" in
+uname_out="$(uname -s)"
+case "${uname_out}" in
   Darwin*)
     export MACHINE="mac"
   ;;
@@ -10,10 +10,10 @@ case "$(uname -s)" in
   ;;
   *)
     export MACHINE=""
-    log error "OS unmanaged: ${unameOut}"
-    return 1
+    echo "OS unmanaged: ${uname_out}"
   ;;
 esac
+
 
 #--> naf - aliases -
 alias activate='source ".venv/bin/activate"'
@@ -21,12 +21,12 @@ alias python='python3'
 alias pip='python3 -m pip'
 alias bpython='python3 -m bpython'
 alias printenv='printenv | sort'
-alias refresh='. $HOME/.profile && . $HOME/.zaliases'
-alias reload='. ${ZDOTDIR:-$HOME}/.zshenv'
+alias refresh='. $HOME/.profile && . ${ZDOTDIR:-$HOME}/.zaliases'
 alias po='vsc ~/.profile'
-alias za='vsc $HOME/.zaliases'
+alias za='vsc ~/.zaliases'
 alias zr='vsc ${ZDOTDIR:-$HOME}/.zshrc'
 #<-- naf - aliases -
+
 
 #--> naf - suffix-aliases -
 _shell="$(echo $0)"
@@ -35,6 +35,7 @@ if [[ "${_shell}" == "zsh" ]]; then  # suffix aliases are zsh specific, one does
   alias -s {log}="tail"
 fi
 #<-- naf - suffix-aliases -
+
 
 #--> naf - functions -
 function tail() {
