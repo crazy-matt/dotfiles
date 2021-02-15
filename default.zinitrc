@@ -54,8 +54,8 @@ zstyle ':autocomplete:*' key-binding off
 zinit lucid \
   light-mode for @marlonrichert/zsh-autocomplete
 
-autoload bashcompinit         # Load bashcompinit for some old bash completions
-bashcompinit
+#autoload bashcompinit; bashcompinit         # Load bashcompinit for some old bash completions
+autoload -U +X bashcompinit && bashcompinit
 
 zi0c light-mode for \
   atinit"zicompinit; zicdreplay; finish_setup" \

@@ -13,9 +13,10 @@ antigen bundle zdharma/fast-syntax-highlighting
 #<-- naf - base-plugins -
 
 #--> naf - bash-completion -
-autoload bashcompinit         # Load bashcompinit for some old bash completions
-bashcompinit
+#autoload bashcompinit; bashcompinit         # Load bashcompinit for some old bash completions
+autoload -U +X bashcompinit && bashcompinit
 #<-- naf - bash-completion -
+# ^^ probably to be moved after antigen apply if the bash completions don't work
 
 #--> naf - base-completion -
 antigen bundle zsh-users/zsh-autosuggestions
