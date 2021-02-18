@@ -57,7 +57,7 @@ zinit lucid \
 #autoload bashcompinit; bashcompinit         # Load bashcompinit for some old bash completions
 autoload -U +X bashcompinit && bashcompinit
 
-zi0c light-mode for \
+zi wait lucid light-mode for \
   atinit"zicompinit; zicdreplay; finish_setup" \
     zdharma/fast-syntax-highlighting \
   atload"_zsh_autosuggest_start" \
