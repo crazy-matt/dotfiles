@@ -43,6 +43,13 @@ zinit ice depth=1; zinit light romkatv/powerlevel10k
 #<-- naf - base-plugins -
 
 #--> naf - base-completion -
+zi_completion has'openssl'
+#zinit ice as'completion'
+zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_openssl
+
+zi_completion has'go'
+zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
+
 # marlonrichert/zsh-autocomplete - config
 zstyle ':autocomplete:list-choices:*' max-lines 90%
 zstyle ':autocomplete:*' groups always
@@ -58,12 +65,11 @@ zinit lucid \
 autoload -U +X bashcompinit && bashcompinit
 
 zi wait lucid light-mode for \
-  atinit"zicompinit; zicdreplay; finish_setup" \
+  atinit'zicompinit; zicdreplay; finish_setup' \
     zdharma/fast-syntax-highlighting \
-  atload"_zsh_autosuggest_start" \
-    zsh-users/zsh-autosuggestions \
+  atload'_zsh_autosuggest_start' \
   blockf atpull'zinit creinstall -q .' \
-    zsh-users/zsh-completions
+    zsh-users/zsh-autosuggestions
 
 #zinit cdlist                 # look at gathered compdefs
 #<-- naf - base-completion -

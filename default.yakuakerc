@@ -1,4 +1,20 @@
-# location: ~/.config/yakuakerc
+[Appearance]
+Skin=arc-dark
+
+[Desktop Entry]
+DefaultProfile=Profile 1.profile
+
+[Dialogs]
+FirstRun=false
+
+[Favorite Profiles]
+Favorites=
+
+[Window]
+Height=71
+KeepOpen=false
+Position=91
+Width=70
 
 [AutoOpen]
 PollMouse=true
