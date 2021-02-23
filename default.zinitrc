@@ -43,11 +43,10 @@ zinit ice depth=1; zinit light romkatv/powerlevel10k
 #<-- naf - base-plugins -
 
 #--> naf - base-completion -
-zi_completion has'openssl'
-#zinit ice as'completion'
+zinit ice as'completion' has'openssl'
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_openssl
 
-zi_completion has'go'
+zinit ice as'completion' has'go'
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
 
 # marlonrichert/zsh-autocomplete - config
