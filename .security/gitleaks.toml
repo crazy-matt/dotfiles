@@ -126,8 +126,12 @@ title = "gitleaks config"
     regex = '''[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}'''
     tags = ["email"]
     [rules.allowlist]
-        files = ['''(?i)bashrc''']
-        description = "ignore bashrc emails"
+        # files = ['''(?i)bashrc''']
+        # description = "ignore bashrc emails"
+        description = "ignore gitconfig emails"
+        regexes = [
+            '''(.*)@users.noreply.github.com'''
+        ]
 
 [[rules]]
     description = "Generic Credential"
