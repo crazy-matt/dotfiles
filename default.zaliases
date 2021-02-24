@@ -21,7 +21,7 @@ alias python='python3'
 alias pip='python3 -m pip'
 alias bpython='python3 -m bpython'
 alias printenv='printenv | sort'
-alias refresh='. $HOME/.profile && . ${ZDOTDIR:-$HOME}/.zaliases'
+alias refresh='. $HOME/.profile && . $HOME/.zaliases'
 alias po='vsc ~/.profile'
 alias za='vsc ~/.zaliases'
 alias zr='vsc ${ZDOTDIR:-$HOME}/.zshrc'
@@ -38,13 +38,4 @@ fi
 
 
 #--> naf - functions -
-function tail() {
-  [[ " -h --help " == *" $1 "* ]] && helper "tail wrapper" "file path" "additional tail args" && return
-  #[[ " -h --help " == *" $1 "* ]] && helper "tail + rainbow wrapper" "file path" "additional rainbow args" && return
-  local _file="$1"
-
-  command tail -f "${_file}" ${@:2}
-  # It could wrap a combination of rainbow + tail as below
-  #rainbow ${@:2} --red=^.*(?i)(error|severe|critical|exception).*$ command tail -f "${_file}"
-}
 #<-- naf - functions -
