@@ -130,7 +130,9 @@ title = "gitleaks config"
         # description = "ignore bashrc emails"
         description = "ignore gitconfig emails"
         regexes = [
-            '''[a-zA-Z0-9._%+-]+@users.noreply.github.com'''
+            '''[a-zA-Z0-9._%+-]+@users.noreply.github.com''',
+            '''git@github.com''',
+            '''git@gitlab.com'''
         ]
 
 [[rules]]
