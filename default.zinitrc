@@ -1,26 +1,18 @@
 #--> naf - zinit -
 . "${ZINIT[BIN_DIR]}/zinit.zsh"
+#autoload -Uz _zinit
+#(( ${+_comps} )) && _comps[zinit]=_zinit
 #<-- naf - zinit -
 
 #--> naf - common-ice-modifiers -
-function z_lucid() {
-  zinit ice lucid ver'master' "$@"
-}
-function zi0a() {
-  z_lucid wait'0a' "$@"   # see https://zdharma.org/zinit/wiki/Example-wait-conditions/
-}
-function zi0b() {
-  z_lucid wait'0b' "$@"
-}
-function zi0c() {
-  z_lucid wait'0c' "$@"
-}
-function zi_completion() {
-  zi0a as'completion' blockf "$@"
-}
-function zi_program() {
-  zi0a as'program' "$@"
-}
+# see https://zdharma.org/zinit/wiki/Example-wait-conditions/
+function zilucid()        { zinit ice lucid                       "${@}" }
+function turbo1()         { zilucid depth'1' wait'0a'             "${@}" }
+function turbo2()         { zilucid depth'1' wait'0b'             "${@}" }
+#function turbo3()         { zilucid depth'1' wait'0c'             "${@}" }
+function zicompletion()   { zilucid wait'0b' as'completion' blockf }
+function zicommand()      { zilucid depth'1' wait'0a' as'program' "${@}" }
+function ziload()         { zilucid depth'1' wait'0a'; zinit light "${@}" }
 #<-- naf - common-ice-modifiers -
 
 #--> naf - rc-functions -
@@ -29,46 +21,62 @@ function finish_setup() {
   command -v pip >/dev/null && . <(pip completion --zsh)
   # load system completions
   if [ -f /usr/share/zsh/site-functions/_systemctl ]; then
-    zi_completion is-snippet for \
+    zicompletion is-snippet for \
       /usr/share/zsh/site-functions/_*ctl
   fi
+}
+function zreload() {
+  command rm -f "${ZDOTDIR:-~}/.zcompdump"
+  autoload -U compinit zrecompile
+  compinit -i -d "${ZINIT[ZCOMPDUMP_PATH]:-${ANTIGEN_COMPDUMP}}"
+
+  for f in "${ZDOTDIR:-~}/.zshrc" "$HOME/.zaliases" "${ZINIT[ZCOMPDUMP_PATH]:-${ANTIGEN_COMPDUMP}}"; do
+    zrecompile -p "$f" && command rm -f "$f.zwc.old"
+  done
+
+  # Use $SHELL if available; remove leading dash if login shell
+  [[ -n "$SHELL" ]] && exec "${SHELL#-}" || exec zsh
+}
+function zireset() {
+  zinit delete --all -y; zinit cclear; exec zsh
+}
+function ziupdate() {
+  zinit cclear; zi compinit; zinit update; exec zsh
 }
 #<-- naf - rc-functions -
 
 #--> naf - theme-loading -
-zinit ice depth=1; zinit light romkatv/powerlevel10k
+zilucid depth'1'; zinit light romkatv/powerlevel10k
 #<-- naf - theme-loading -
 
 #--> naf - base-plugins -
+zicompletion has'openssl'
+zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_openssl
+
+zicompletion has'go'
+zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
 #<-- naf - base-plugins -
 
 #--> naf - base-completion -
-zinit ice as'completion' has'openssl'
-zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_openssl
-
-zinit ice as'completion' has'go'
-zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
-
 # marlonrichert/zsh-autocomplete - config
-zstyle ':autocomplete:list-choices:*' max-lines 90%
-zstyle ':autocomplete:*' groups always
-zstyle ':autocomplete:tab:*' completion cycle
-zstyle ':autocomplete:*' magic off
-zstyle ':autocomplete:*' fuzzy-search off
-zstyle ':autocomplete:*' key-binding off
-#zstyle ':autocomplete:*' config off
+if [ -r "${ZSH_COMPLETION}" ]; then
+  . "${ZSH_COMPLETION}"
+fi
 zinit lucid \
   light-mode for @marlonrichert/zsh-autocomplete
 
 #autoload bashcompinit; bashcompinit         # Load bashcompinit for some old bash completions
 autoload -U +X bashcompinit && bashcompinit
 
-zi wait lucid light-mode for \
+zinit wait"0c" lucid light-mode for \
   atinit'zicompinit; zicdreplay; finish_setup' \
     zdharma/fast-syntax-highlighting \
   atload'_zsh_autosuggest_start' \
   blockf atpull'zinit creinstall -q .' \
     zsh-users/zsh-autosuggestions
 
-#zinit cdlist                 # look at gathered compdefs
+#zinit cdlist       # Show compdef replay list
+#zinit clist        # List completions in use
+#zinit compinit     # Refresh installed completions
+# ^^ ref: https://github.com/zdharma/zinit#completions-1
 #<-- naf - base-completion -

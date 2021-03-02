@@ -19,8 +19,10 @@ autoload -U +X bashcompinit && bashcompinit
 # ^^ probably to be moved after antigen apply if the bash completions don't work
 
 #--> naf - base-completion -
+if [ -r "${ZSH_COMPLETION}" ]; then
+  . "${ZSH_COMPLETION}"
+fi
 antigen bundle zsh-users/zsh-autosuggestions
-antigen bundle zsh-users/zsh-completions
 #<-- naf - base-completion -
 
 #--> naf - antigen-apply -
