@@ -50,6 +50,8 @@ zilucid depth'1'; zinit light romkatv/powerlevel10k
 #<-- naf - theme-loading -
 
 #--> naf - base-plugins -
+zinit light zinit-zsh/z-a-patch-dl
+
 zicompletion has'openssl'
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_openssl
 
