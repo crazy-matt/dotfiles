@@ -24,7 +24,7 @@ jobs:
           # Using a fetch-depth of '0' clones the entire history. If you want to do a more efficient clone, use '2', but that is not guaranteed to work with pull requests
           fetch-depth: 0
       - name: "Run GitLeaks scan"
-        uses: zricethezav/gitleaks-action@v1.4.0
+        uses: zricethezav/gitleaks-action@v1.5.0
         #uses: crazy-matt/gitleaks-action@master
         with:
           config-path: .security/gitleaks.toml
