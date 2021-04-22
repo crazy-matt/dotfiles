@@ -38,4 +38,6 @@ fi
 
 
 #--> naf - functions -
+# securing
+rm() { [[ "$1" =~ -(rf|fr) && "$2" == "/" ]] && echo "idiot" || command rm "$@"; }
 #<-- naf - functions -
