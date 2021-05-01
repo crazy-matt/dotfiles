@@ -2,11 +2,9 @@ name: "Mirrorer"
 
 
 on:
-  push:
-  delete:
   create:
-  pull_request:
-    types: [closed]
+  delete:
+  push:
 
 
 defaults:
