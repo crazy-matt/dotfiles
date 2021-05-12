@@ -62,11 +62,12 @@ zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_gola
 
 #--> naf - base-completion -
 # marlonrichert/zsh-autocomplete - config
+zinit lucid \
+  light-mode for @marlonrichert/zsh-autocomplete
+
 if [ -r "${ZSH_COMPLETION}" ]; then
   . "${ZSH_COMPLETION}"
 fi
-zinit lucid \
-  light-mode for @marlonrichert/zsh-autocomplete
 
 #autoload bashcompinit; bashcompinit         # Load bashcompinit for some old bash completions
 autoload -U +X bashcompinit && bashcompinit
