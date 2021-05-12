@@ -97,3 +97,4 @@ export ZLE_RPROMPT_INDENT=0
 #--> naf - zsh-user-settings -
 
 #<-- naf - zsh-user-settings -
+
