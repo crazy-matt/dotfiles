@@ -25,12 +25,14 @@ function finish_setup() {
   fi
 }
 function zreload() {
-  command rm -f "${ZDOTDIR:-$HOME}/.zcompdump"
-  command rm -f "${ZINIT[ZCOMPDUMP_PATH]}"
+  #command rm -f "${ZDOTDIR:-$HOME}/.zcompdump"
+  #command rm -f "${ZINIT[ZCOMPDUMP_PATH]}"
+
   autoload -U compinit zrecompile
   compinit -i -d "${ZINIT[ZCOMPDUMP_PATH]:-${ANTIGEN_COMPDUMP}}"
 
-  for f in "${ZDOTDIR:-~}/.zshrc" "$HOME/.zaliases" "${ZINIT[ZCOMPDUMP_PATH]:-${ANTIGEN_COMPDUMP}}"; do
+  #for f in "${ZDOTDIR:-~}/.zshrc" "$HOME/.zaliases" "${ZINIT[ZCOMPDUMP_PATH]:-${ANTIGEN_COMPDUMP}}"; do
+  for f in "${ZDOTDIR:-~}/.zshrc" "$HOME/.zaliases"; do
     zrecompile -p "$f" && command rm -f "$f.zwc.old"
   done
 
