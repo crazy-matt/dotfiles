@@ -18,7 +18,6 @@ function ziload()         { zilucid depth'1' wait'0a'; zinit light "${@}" }
 #--> naf - rc-functions -
 # the following will run after everything else happens
 function finish_setup() {
-  command -v pip >/dev/null && . <(pip completion --zsh)
   # load system completions
   if [ -f /usr/share/zsh/site-functions/_systemctl ]; then
     zicompletion is-snippet for \
